@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Contamination Prediction</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script type="text/javascript" src="http://me.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=SofNMWK1BeCx_dM-J6C-t9GWVKSX3YHKzze0j4-q9GzygQbJO1qwyHZDBIo-BvdXEr31pbi0oIo53GhzY7hxCrPQ4qFkUaAKYex9rKloMyo2sn6h40b8AjE1CVbZTtvb_K2AI63QqvLjc2IQmTdAUV5A8jghermRGDefAO2wwRo8w4v6LJ-21RSFUfjCwJ7RG66OwPgQ9oJCatUKppZAJcw55TU6iUMBVt4HcOBda9c" charset="UTF-8"></script><style>
+        .category {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .category-title {
+            color: #0d6efd;
+            margin-bottom: 15px;
+        }
+        #result-card {
+            display: none;
+        }
+        .probability-bar {
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        .probability-fill {
+            height: 100%;
+            background-color: #0d6efd;
+            width: 0%;
+            transition: width 1s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <h1 class="text-center mb-4">Water Contamination Prediction</h1>
+        
+        <form id="prediction-form">
+            <!-- Water Metrics -->
+            <div class="category">
+                <h3 class="category-title">Water Quality Metrics</h3>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="phLevel" class="form-label">pH Level</label>
+                        <input type="number" step="0.01" class="form-control" id="phLevel" name="pH Level" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="turbidity" class="form-label">Turbidity (NTU)</label>
+                        <input type="number" step="0.01" class="form-control" id="turbidity" name="Turbidity (NTU)" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="dissolvedOxygen" class="form-label">Dissolved Oxygen (mg/L)</label>
+                        <input type="number" step="0.01" class="form-control" id="dissolvedOxygen" name="Dissolved Oxygen (mg/L)" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="nitrateLevel" class="form-label">Nitrate Level (mg/L)</label>
+                        <input type="number" step="0.01" class="form-control" id="nitrateLevel" name="Nitrate Level (mg/L)" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="bacteriaCount" class="form-label">Bacteria Count (CFU/mL)</label>
+                        <input type="number" class="form-control" id="bacteriaCount" name="Bacteria Count (CFU/mL)" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="leadLevel" class="form-label">Lead Concentration (µg/L)</label>
+                        <input type="number" step="0.01" class="form-control" id="leadLevel" name="Lead_winsorized" required>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Environmental Factors -->
+            <div class="category">
+                <h3 class="category-title">Environmental Factors</h3>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="rainfall" class="form-label">Rainfall (mm per year)</label>
+                        <input type="number" class="form-control" id="rainfall" name="Rainfall (mm per year)" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="temperature" class="form-label">Temperature (°C)</label>
+                        <input type="number" step="0.01" class="form-control" id="temperature" name="Temperature (°C)" required>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Infrastructure & Socio-Economic Factors -->
+            <div class="category">
+                <h3 class="category-title">Infrastructure & Socio-Economic Factors</h3>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="waterTreatment" class="form-label">Water Treatment Method</label>
+                        <select class="form-select" id="waterTreatment" name="Water Treatment Method" required>
+                            <option value="">Select method...</option>
+                            <option value="Chlorination">Chlorination</option>
+                            <option value="Filtration">Filtration</option>
+                            <option value="Boiling">Boiling</option>
+                            <option value="UV Treatment">UV Treatment</option>
+                            <option value="None">None</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="cleanWaterAccess" class="form-label">Access to Clean Water (% of Population)</label>
+                        <input type="number" step="0.01" min="0" max="100" class="form-control" id="cleanWaterAccess" name="Access to Clean Water (% of Population)" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="sanitationCoverage" class="form-label">Sanitation Coverage (% of Population)</label>
+                        <input type="number" step="0.01" min="0" max="100" class="form-control" id="sanitationCoverage" name="Sanitation Coverage (% of Population)" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="populationDensity" class="form-label">Population Density (people per km²)</label>
+                        <input type="number" class="form-control" id="populationDensity" name="Population Density (people per km²)" required>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary btn-lg">Predict Contamination Risk</button>
+            </div>
+        </form>
+        
+        <!-- Results Card -->
+        <div class="card mt-4" id="result-card">
+            <div class="card-body text-center">
+                <h2 class="card-title" id="result-title">Prediction Result</h2>
+                <p class="card-text" id="result-text"></p>
+                <div class="probability-bar mt-3">
+                    <div class="probability-fill" id="probability-fill"></div>
+                </div>
+                <p class="mt-2" id="probability-text"></p>
+                <p class="mt-2" id="confidence-text"></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('prediction-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show loading state
+            const submitBtn = document.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Predicting...';
+            
+            // Collect form data
+            const formData = new FormData(this);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
+            
+            // Send prediction request
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(data).toString()
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.error) {
+                    throw new Error(result.error);
+                }
+                
+                // Display results
+                const resultCard = document.getElementById('result-card');
+                const resultTitle = document.getElementById('result-title');
+                const resultText = document.getElementById('result-text');
+                const probabilityFill = document.getElementById('probability-fill');
+                const probabilityText = document.getElementById('probability-text');
+                const confidenceText = document.getElementById('confidence-text');
+                
+                resultCard.style.display = 'block';
+                resultTitle.textContent = result.prediction;
+                
+                if (result.prediction === 'Contaminated') {
+                    resultCard.className = 'card mt-4 border-danger';
+                    resultTitle.className = 'card-title text-danger';
+                    resultText.textContent = 'The water is likely contaminated based on the provided parameters.';
+                    probabilityFill.style.backgroundColor = '#dc3545';
+                } else {
+                    resultCard.className = 'card mt-4 border-success';
+                    resultTitle.className = 'card-title text-success';
+                    resultText.textContent = 'The water is likely safe based on the provided parameters.';
+                    probabilityFill.style.backgroundColor = '#198754';
+                }
+                
+                const probability = result.probability * 100;
+                probabilityFill.style.width = `${probability}%`;
+                probabilityText.textContent = `Probability: ${probability.toFixed(2)}%`;
+                confidenceText.textContent = `Confidence: ${result.confidence}`;
+                
+                // Scroll to results
+                resultCard.scrollIntoView({ behavior: 'smooth' });
+            })
+            .catch(error => {
+                alert(`Error: ${error.message}`);
+            })
+            .finally(() => {
+                // Reset button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Predict Contamination Risk';
+            });
+        });
+    </script>
+</body>
+</html>
